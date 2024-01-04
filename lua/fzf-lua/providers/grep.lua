@@ -9,7 +9,7 @@ local M = {}
 
 ---@param opts table
 ---@param search_query string
----@param no_esc boolean
+---@param no_esc boolean|number
 ---@return string
 local get_grep_cmd = function(opts, search_query, no_esc)
   if opts.raw_cmd and #opts.raw_cmd > 0 then
@@ -147,10 +147,6 @@ local function normalize_live_grep_opts(opts)
   -- to deref one level up to get to `live_grep_{mt|st}`
   opts.__call_fn = utils.__FNCREF2__()
 
-  -- NOT NEEDED SINCE RESUME DATA REFACTOR
-  -- (was used by `make_entry.set_config_section`
-  -- opts.__module__ = opts.__module__ or "grep"
-
   -- prepend prompt with "*" to indicate "live" query
   opts.prompt = type(opts.prompt) == "string" and opts.prompt or ""
   opts.prompt = opts.prompt:match("^%*") and opts.prompt or ("*" .. opts.prompt)
@@ -256,21 +252,6 @@ M.live_grep_mt = function(opts)
   -- FIELD INDEX EXPRESSION by 'fzf_exec'
   opts.cmd = get_grep_cmd(opts, core.fzf_query_placeholder, 2)
   local command = core.mt_cmd_wrapper(opts)
-  if command ~= opts.cmd then --[[@cast command -function]]
-    -- this means mt_cmd_wrapper wrapped the command.
-    -- Since now the `rg` command is wrapped inside
-    -- the shell escaped '--headless .. --cmd', we won't
-    -- be able to search single quotes as it will break
-    -- the escape sequence. So we use a nifty trick
-    --   * replace the placeholder with {argv1}
-    --   * re-add the placeholder at the end of the command
-    --   * preprocess then replace it with vim.fn.argv(1)
-    -- NOTE: since we cannot guarantee the positional index
-    -- of arguments (#291), we use the last argument instead
-    command = command:gsub(core.fzf_query_placeholder, "{argvz}")
-        -- prefix the query with `--` so we can support `--fixed-strings` (#781)
-        .. " -- " .. core.fzf_query_placeholder
-  end
 
   -- signal 'fzf_exec' to set 'change:reload' parameters
   -- or skim's "interactive" mode (AKA "live query")
@@ -402,7 +383,7 @@ M.grep_curbuf = function(opts, lgrep)
     utils.info("Rg current buffer requires file on disk")
     return
   else
-    opts.filename = path.relative(opts.filename, vim.loop.cwd())
+    opts.filename = path.relative_to(opts.filename, vim.loop.cwd())
   end
   -- rg globs are meaningless here since we searching a single file
   opts.rg_glob = false

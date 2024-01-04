@@ -2,7 +2,7 @@
 -- https://github.com/vijaymarupudi/nvim-fzf/blob/master/action_helper.lua
 local uv = vim.loop
 
-local is_windows = vim.fn.has("win32") == 1
+local is_windows = vim.fn.has("win32") == 1 or vim.fn.has("win64") == 1
 
 ---@return string
 local function windows_pipename()
@@ -77,6 +77,9 @@ local function rpc_nvim_exec_lua(opts)
     end
     for i = 1, vim.fn.argc() do
       io.stderr:write(("[DEBUG]\targ[%d] = %s\n"):format(i, vim.fn.argv(i - 1)))
+    end
+    for _, var in ipairs({ "LINES", "COLUMNS" }) do
+      io.stderr:write(("[DEBUG]\t$%s = %s\n"):format(var, os.getenv(var) or "<null>"))
     end
   end
 

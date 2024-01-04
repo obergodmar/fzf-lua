@@ -1,4 +1,4 @@
-*fzf-lua.txt*         For Neovim >= 0.5.0         Last change: 2024 January 30
+*fzf-lua.txt*         For Neovim >= 0.8.0         Last change: 2024 January 30
 
 ==============================================================================
 Table of Contents                                  *fzf-lua-table-of-contents*
@@ -971,7 +971,6 @@ open an issue and I'll be more than happy to help.**
               .. " %(subject) %(color:blue)%(taggername)%(color:reset)' refs/tags",
           preview  = "git log --graph --color --pretty=format:'%C(yellow)%h%Creset "
               .. "%Cgreen(%><(12)%cr%><|(12))%Creset %s %C(blue)<%an>%Creset' {1}",
-          fzf_opts = { ["--no-multi"] = "" },
           actions  = { ["default"] = actions.git_checkout },
         },
         stash = {
@@ -981,10 +980,6 @@ open an issue and I'll be more than happy to help.**
           actions = {
             ["default"]   = actions.git_stash_apply,
             ["ctrl-x"]    = { fn = actions.git_stash_drop, reload = true },
-          },
-          fzf_opts = {
-            ["--no-multi"]  = '',
-            ['--delimiter'] = "'[:]'",
           },
         },
         icons = {
