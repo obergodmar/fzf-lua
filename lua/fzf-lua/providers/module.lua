@@ -11,12 +11,6 @@ M.metatable = function(opts)
 
   if not opts.metatable then opts.metatable = getmetatable("").__index end
 
-  local prev_act = shell.action(function(args)
-    -- TODO: retreive method help
-    local help = ""
-    return string.format("%s:%s", args[1], help)
-  end, nil, opts.debug)
-
   local methods = {}
   for k, _ in pairs(opts.metatable) do
     if not opts.metatable_exclude or opts.metatable_exclude[k] == nil then
@@ -26,7 +20,12 @@ M.metatable = function(opts)
 
   table.sort(methods, function(a, b) return a < b end)
 
-  opts.fzf_opts["--preview"] = prev_act
+  opts.preview = shell.raw_action(function(args)
+    -- TODO: retreive method help
+    local help = ""
+    return string.format("%s:%s", args[1], help)
+  end, nil, opts.debug)
+
   opts.fzf_opts["--preview-window"] = "hidden:down:10"
 
   -- builtin is excluded from global resume

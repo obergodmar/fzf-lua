@@ -508,6 +508,17 @@ M.spawn_stdio = function(opts, fn_transform_str, fn_preprocess_str)
     end)
 end
 
+
+M.is_escaped = function(s, force_win)
+  local m
+  if is_windows or force_win then
+    m = s:match([[^".*"$]]) or s:match([[^%^".*%^"$]])
+  else
+    m = s:match([[^'.*'$]]) or s:match([[^".*"$]])
+  end
+  return m ~= nil
+end
+
 -- our own version of vim.fn.shellescape compatibile with fish shells
 --   * don't double-escape '\' (#340)
 --   * if possible, replace surrounding single quote with double

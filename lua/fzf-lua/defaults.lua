@@ -114,7 +114,7 @@ M.defaults = {
   },
   fzf_bin       = nil,
   fzf_opts      = {
-    ["--ansi"]   = "",
+    ["--ansi"]   = true,
     ["--info"]   = "inline",
     ["--height"] = "100%",
     ["--layout"] = "reverse",
@@ -207,7 +207,7 @@ M.defaults.files = {
   cwd_prompt             = true,
   cwd_prompt_shorten_len = 32,
   cwd_prompt_shorten_val = 1,
-  fzf_opts               = { ["--info"] = "default", ["--multi"] = "" },
+  fzf_opts               = { ["--info"] = "default", ["--multi"] = true },
   git_status_cmd         = {
     "git", "-c", "color.status=false", "--no-optional-locks", "status", "--porcelain=v1" },
   find_opts              = [[-type f -not -path '*/\.git/*' -printf '%P\n']],
@@ -230,7 +230,7 @@ M.defaults.git = {
     file_icons   = true and M._has_devicons,
     color_icons  = true,
     git_icons    = true,
-    fzf_opts     = { ["--multi"] = "" },
+    fzf_opts     = { ["--multi"] = true },
     _actions     = function() return M.globals.actions.files end,
     winopts      = { preview = { winopts = { cursorline = false } } },
   },
@@ -244,7 +244,7 @@ M.defaults.git = {
     file_icons   = true and M._has_devicons,
     color_icons  = true,
     git_icons    = true,
-    fzf_opts     = { ["--multi"] = "" },
+    fzf_opts     = { ["--multi"] = true },
     _actions     = function() return M.globals.actions.files end,
     actions      = {
       ["right"]  = { fn = actions.git_unstage, reload = true },
@@ -265,7 +265,7 @@ M.defaults.git = {
       ["default"] = actions.git_checkout,
       ["ctrl-y"]  = { fn = actions.git_yank_commit, exec_silent = true },
     },
-    fzf_opts = { ["--no-multi"] = "" },
+    fzf_opts = { ["--no-multi"] = true },
   },
   bcommits = {
     prompt        = "BCommits> ",
@@ -280,13 +280,13 @@ M.defaults.git = {
       ["ctrl-t"]  = actions.git_buf_tabedit,
       ["ctrl-y"]  = { fn = actions.git_yank_commit, exec_silent = true },
     },
-    fzf_opts = { ["--no-multi"] = "" },
+    fzf_opts = { ["--no-multi"] = true },
   },
   branches = {
     prompt   = "Branches> ",
     cmd      = "git branch --all --color",
     preview  = "git log --graph --pretty=oneline --abbrev-commit --color {1}",
-    fzf_opts = { ["--no-multi"] = "" },
+    fzf_opts = { ["--no-multi"] = true },
     actions  = {
       ["default"] = actions.git_switch,
     },
@@ -299,7 +299,7 @@ M.defaults.git = {
         .. [[ %(subject) %(color:blue)%(taggername)%(color:reset)" refs/tags]],
     preview  = [[git log --graph --color --pretty=format:"%C(yellow)%h%Creset ]]
         .. [[%Cgreen(%><(12)%cr%><|(12))%Creset %s %C(blue)<%an>%Creset" {1}]],
-    fzf_opts = { ["--no-multi"] = "" },
+    fzf_opts = { ["--no-multi"] = true },
     actions  = { ["default"] = actions.git_checkout },
   },
   stash = {
@@ -314,8 +314,8 @@ M.defaults.git = {
       -- TODO: multiselect requires more work as dropping
       -- a stash changes the stash index, causing an error
       -- when the next stash is attempted
-      ["--no-multi"]  = "",
-      ["--delimiter"] = "'[:]'",
+      ["--no-multi"]  = true,
+      ["--delimiter"] = "[:]",
     },
   },
   icons = {
@@ -338,7 +338,7 @@ M.defaults.grep = {
   file_icons     = true and M._has_devicons,
   color_icons    = true,
   git_icons      = true,
-  fzf_opts       = { ["--info"] = "default", ["--multi"] = "" },
+  fzf_opts       = { ["--info"] = "default", ["--multi"] = true },
   grep_opts      = utils.is_darwin()
       and "--binary-files=without-match --line-number --recursive --color=always "
       .. "--extended-regexp -e"
@@ -360,7 +360,7 @@ M.defaults.args = {
   file_icons  = true and M._has_devicons,
   color_icons = true,
   git_icons   = true,
-  fzf_opts    = { ["--multi"] = "" },
+  fzf_opts    = { ["--multi"] = true },
   _actions    = function() return M.globals.actions.files end,
   actions     = { ["ctrl-x"] = { fn = actions.arg_del, reload = true } },
 }
@@ -372,7 +372,7 @@ M.defaults.oldfiles = {
   color_icons = true,
   git_icons   = false,
   stat_file   = true,
-  fzf_opts    = { ["--tiebreak"] = "index", ["--multi"] = "" },
+  fzf_opts    = { ["--tiebreak"] = "index", ["--multi"] = true },
   _actions    = function() return M.globals.actions.files end,
 }
 
@@ -383,7 +383,7 @@ M.defaults.quickfix = {
   file_icons  = true and M._has_devicons,
   color_icons = true,
   git_icons   = false,
-  fzf_opts    = { ["--multi"] = "" },
+  fzf_opts    = { ["--multi"] = true },
   _actions    = function() return M.globals.actions.files end,
 }
 
@@ -391,7 +391,7 @@ M.defaults.quickfix_stack = {
   prompt    = "Quickfix Stack> ",
   marker    = ">",
   previewer = { _ctor = previewers.builtin.quickfix, },
-  fzf_opts  = { ["--no-multi"] = "" },
+  fzf_opts  = { ["--no-multi"] = true },
   actions   = { ["default"] = actions.set_qflist, },
 }
 
@@ -402,7 +402,7 @@ M.defaults.loclist = {
   file_icons  = true and M._has_devicons,
   color_icons = true,
   git_icons   = false,
-  fzf_opts    = { ["--multi"] = "" },
+  fzf_opts    = { ["--multi"] = true },
   _actions    = function() return M.globals.actions.files end,
 }
 
@@ -410,7 +410,7 @@ M.defaults.loclist_stack = {
   prompt    = "Locations Stack> ",
   marker    = ">",
   previewer = { _ctor = previewers.builtin.quickfix, },
-  fzf_opts  = { ["--no-multi"] = "" },
+  fzf_opts  = { ["--no-multi"] = true },
   actions   = { ["default"] = actions.set_qflist, },
 }
 
@@ -425,7 +425,7 @@ M.defaults.buffers = {
   no_action_set_cursor  = true,
   cwd_only              = false,
   cwd                   = nil,
-  fzf_opts              = { ["--tiebreak"] = "index", ["--multi"] = "" },
+  fzf_opts              = { ["--tiebreak"] = "index", ["--multi"] = true },
   _actions              = function() return M.globals.actions.buffers end,
   actions               = { ["ctrl-x"] = { fn = actions.buf_del, reload = true } },
   _cached_hls           = { "buf_nr", "buf_flag_cur", "buf_flag_alt" },
@@ -444,8 +444,8 @@ M.defaults.tabs = {
     ["ctrl-x"]  = { fn = actions.buf_del, reload = true },
   },
   fzf_opts    = {
-    ["--multi"]     = "",
-    ["--delimiter"] = "'[\\):]'",
+    ["--multi"]     = true,
+    ["--delimiter"] = "[\\):]",
     ["--with-nth"]  = "3..",
   },
   _cached_hls = { "buf_nr", "buf_flag_cur", "buf_flag_alt", "tab_title", "tab_marker" },
@@ -460,8 +460,8 @@ M.defaults.lines = {
   show_unlisted    = false,
   no_term_buffers  = true,
   fzf_opts         = {
-    ["--no-multi"]  = "",
-    ["--delimiter"] = "'[\\]:]'",
+    ["--no-multi"]  = true,
+    ["--delimiter"] = "[\\]:]",
     ["--nth"]       = "2..",
     ["--tiebreak"]  = "index",
     ["--tabstop"]   = "1",
@@ -484,8 +484,8 @@ M.defaults.blines = {
   show_unlisted    = true,
   no_term_buffers  = false,
   fzf_opts         = {
-    ["--no-multi"]  = "",
-    ["--delimiter"] = "'[:]'",
+    ["--no-multi"]  = true,
+    ["--delimiter"] = "[:]",
     ["--with-nth"]  = "2..",
     ["--tiebreak"]  = "index",
     ["--tabstop"]   = "1",
@@ -512,8 +512,8 @@ M.defaults.tags = {
   git_icons    = false,
   color_icons  = true,
   fzf_opts     = {
-    ["--no-multi"]  = "",
-    ["--delimiter"] = string.format("'[:%s]'", utils.nbsp),
+    ["--no-multi"]  = true,
+    ["--delimiter"] = string.format("[:%s]", utils.nbsp),
     ["--tiebreak"]  = "begin",
     ["--info"]      = "default",
   },
@@ -532,8 +532,8 @@ M.defaults.btags = {
   git_icons    = false,
   color_icons  = true,
   fzf_opts     = {
-    ["--no-multi"]  = "",
-    ["--delimiter"] = string.format("'[:%s]'", utils.nbsp),
+    ["--no-multi"]  = true,
+    ["--delimiter"] = string.format("[:%s]", utils.nbsp),
     ["--with-nth"]  = "1,-1",
     ["--tiebreak"]  = "begin",
     ["--info"]      = "default",
@@ -546,13 +546,13 @@ M.defaults.colorschemes = {
   prompt       = "Colorschemes> ",
   live_preview = true,
   winopts      = { height = 0.55, width = 0.50 },
-  fzf_opts     = { ["--no-multi"] = "" },
+  fzf_opts     = { ["--no-multi"] = true },
   actions      = { ["default"] = actions.colorscheme },
 }
 
 M.defaults.highlights = {
   prompt    = "Highlights> ",
-  fzf_opts  = { ["--no-multi"] = "" },
+  fzf_opts  = { ["--no-multi"] = true },
   previewer = { _ctor = previewers.builtin.highlights, },
 }
 
@@ -565,8 +565,8 @@ M.defaults.helptags = {
     ["ctrl-t"]  = actions.help_tab,
   },
   fzf_opts  = {
-    ["--no-multi"]  = "",
-    ["--delimiter"] = "'[ ]'",
+    ["--no-multi"]  = true,
+    ["--delimiter"] = "[ ]",
     ["--with-nth"]  = "..-2",
   },
   previewer = {
@@ -583,7 +583,7 @@ M.defaults.manpages = {
     ["ctrl-v"]  = actions.man_vert,
     ["ctrl-t"]  = actions.man_tab,
   },
-  fzf_opts  = { ["--tiebreak"] = "begin", ["--no-multi"] = "" },
+  fzf_opts  = { ["--tiebreak"] = "begin", ["--no-multi"] = true },
   previewer = "man",
 }
 
@@ -595,7 +595,7 @@ M.defaults.lsp = {
   git_icons        = false,
   cwd_only         = false,
   async_or_timeout = 5000,
-  fzf_opts         = { ["--multi"] = "" },
+  fzf_opts         = { ["--multi"] = true },
   _actions         = function() return M.globals.actions.files end,
 }
 
@@ -641,10 +641,10 @@ M.defaults.lsp.symbols = {
   exec_empty_query = true,
   -- new formatting options with symbol name at the start
   fzf_opts         = {
-    ["--delimiter"] = string.format("'[:%s]'", utils.nbsp),
+    ["--delimiter"] = string.format("[:%s]", utils.nbsp),
     ["--tiebreak"]  = "begin",
     ["--info"]      = "default",
-    ["--no-multi"]  = "",
+    ["--no-multi"]  = true,
   },
   line_field_index = "{-2}", -- line field index
   field_index_expr = "{}",   -- entry field index
@@ -706,7 +706,7 @@ M.defaults.lsp.code_actions = {
   async_or_timeout = 5000,
   previewer        = "codeaction",
   -- previewer        = "codeaction_native",
-  fzf_opts         = { ["--no-multi"] = "" },
+  fzf_opts         = { ["--no-multi"] = true },
 }
 
 M.defaults.diagnostics = {
@@ -718,7 +718,7 @@ M.defaults.diagnostics = {
   diag_icons  = true,
   diag_source = false,
   multiline   = true,
-  fzf_opts    = { ["--multi"] = "" },
+  fzf_opts    = { ["--multi"] = true },
   _actions    = function() return M.globals.actions.files end,
   -- signs = {
   --   ["Error"] = { text = "e", texthl = "DiagnosticError" },
@@ -734,7 +734,7 @@ M.defaults.builtin = {
     height = 0.65,
     width  = 0.50,
   },
-  fzf_opts = { ["--no-multi"] = "" },
+  fzf_opts = { ["--no-multi"] = true },
   actions  = { ["default"] = actions.run_builtin },
 }
 
@@ -742,16 +742,16 @@ M.defaults.profiles = {
   previewer = M._default_previewer_fn,
   prompt    = "FzfLua profiles> ",
   fzf_opts  = {
-    ["--delimiter"] = "'[:]'",
+    ["--delimiter"] = "[:]",
     ["--with-nth"]  = "-1..",
-    ["--no-multi"]  = "",
+    ["--no-multi"]  = true,
   },
   actions   = { ["default"] = actions.apply_profile },
 }
 
 M.defaults.marks = {
   prompt    = "Marks> ",
-  fzf_opts  = { ["--no-multi"] = "" },
+  fzf_opts  = { ["--no-multi"] = true },
   actions   = { ["default"] = actions.goto_mark },
   previewer = { _ctor = previewers.builtin.marks },
 }
@@ -765,7 +765,7 @@ M.defaults.changes = {
 M.defaults.jumps = {
   prompt    = "Jumps> ",
   cmd       = "jumps",
-  fzf_opts  = { ["--no-multi"] = "" },
+  fzf_opts  = { ["--no-multi"] = true },
   actions   = { ["default"] = actions.goto_jump },
   previewer = { _ctor = previewers.builtin.jumps },
 }
@@ -775,7 +775,7 @@ M.defaults.tagstack = {
   file_icons  = true and M._has_devicons,
   color_icons = true,
   git_icons   = true,
-  fzf_opts    = { ["--multi"] = "" },
+  fzf_opts    = { ["--multi"] = true },
   previewer   = M._default_previewer_fn,
   _actions    = function() return M.globals.actions.files end,
 }
@@ -792,15 +792,15 @@ M.defaults.autocmds = {
   previewer = { _ctor = previewers.builtin.autocmds },
   _actions  = function() return M.globals.actions.files end,
   fzf_opts  = {
-    ["--delimiter"] = "'[:]'",
+    ["--delimiter"] = "[:]",
     ["--with-nth"]  = "3..",
-    ["--no-multi"]  = "",
+    ["--no-multi"]  = true,
   },
 }
 
 M.defaults.command_history = {
   prompt   = "Command History> ",
-  fzf_opts = { ["--tiebreak"] = "index", ["--no-multi"] = "" },
+  fzf_opts = { ["--tiebreak"] = "index", ["--no-multi"] = true },
   actions  = {
     ["default"] = actions.ex_run_cr,
     ["ctrl-e"]  = actions.ex_run,
@@ -809,7 +809,7 @@ M.defaults.command_history = {
 
 M.defaults.search_history = {
   prompt   = "Search History> ",
-  fzf_opts = { ["--tiebreak"] = "index", ["--no-multi"] = "" },
+  fzf_opts = { ["--tiebreak"] = "index", ["--no-multi"] = true },
   actions  = {
     ["default"] = actions.search_cr,
     ["ctrl-e"]  = actions.search,
@@ -820,14 +820,14 @@ M.defaults.registers = {
   prompt       = "Registers> ",
   ignore_empty = true,
   actions      = { ["default"] = actions.paste_register },
-  fzf_opts     = { ["--no-multi"] = "" },
+  fzf_opts     = { ["--no-multi"] = true },
 }
 
 M.defaults.keymaps = {
   prompt          = "Keymaps> ",
   previewer       = { _ctor = previewers.builtin.keymaps },
   winopts         = { preview = { layout = "vertical" } },
-  fzf_opts        = { ["--tiebreak"] = "index", ["--no-multi"] = "" },
+  fzf_opts        = { ["--tiebreak"] = "index", ["--no-multi"] = true },
   ignore_patterns = { "^<SNR>", "^<Plug>" },
   actions         = {
     ["default"] = actions.keymap_apply,
@@ -871,26 +871,26 @@ M.defaults.tmux = {
     cmd      = "tmux list-buffers",
     register = [["]],
     actions  = { ["default"] = actions.tmux_buf_set_reg },
-    fzf_opts = { ["--no-multi"] = "" },
+    fzf_opts = { ["--no-multi"] = true, ["--delimiter"] = "[:]" }
   },
 }
 
 M.defaults.dap = {
   commands = {
     prompt = "DAP Commands> ",
-    fzf_opts = { ["--no-multi"] = "" },
+    fzf_opts = { ["--no-multi"] = true },
   },
   configurations = {
     prompt = "DAP Configurations> ",
-    fzf_opts = { ["--no-multi"] = "" },
+    fzf_opts = { ["--no-multi"] = true },
   },
   variables = {
     prompt = "DAP Variables> ",
-    fzf_opts = { ["--no-multi"] = "" },
+    fzf_opts = { ["--no-multi"] = true },
   },
   frames = {
     prompt = "DAP Frames> ",
-    fzf_opts = { ["--no-multi"] = "" },
+    fzf_opts = { ["--no-multi"] = true },
   },
   breakpoints = {
     prompt      = "DAP Breakpoints> ",
@@ -900,9 +900,9 @@ M.defaults.dap = {
     previewer   = M._default_previewer_fn,
     _actions    = function() return M.globals.actions.files end,
     fzf_opts    = {
-      ["--delimiter"] = "'[\\]:]'",
+      ["--delimiter"] = "[\\]:]",
       ["--with-nth"]  = "2..",
-      ["--no-multi"]  = "",
+      ["--no-multi"]  = true,
     },
   },
 }
@@ -912,7 +912,7 @@ M.defaults.complete_path = {
   file_icons  = false,
   git_icons   = false,
   color_icons = true,
-  fzf_opts    = { ["--no-multi"] = "" },
+  fzf_opts    = { ["--no-multi"] = true },
   actions     = { ["default"] = actions.complete },
 }
 
@@ -926,7 +926,7 @@ M.defaults.complete_file = {
   actions      = { ["default"] = actions.complete },
   previewer    = M._default_previewer_fn,
   winopts      = { preview = { hidden = "hidden" } },
-  fzf_opts     = { ["--no-multi"] = "" },
+  fzf_opts     = { ["--no-multi"] = true },
 }
 
 M.defaults.complete_line = { complete = true }

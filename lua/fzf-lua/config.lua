@@ -274,6 +274,13 @@ function M.normalize_opts(opts, globals, __resume_key)
       type(M.globals[k]) == "table" and utils.tbl_deep_clone(M.globals[k]) or {})
   end
 
+  -- backward compat: no-value flags should be set to `true`, in the past these
+  -- would be set to an empty string which would now translate into a shell escaped
+  -- string as we automatically shell escape all fzf_opts
+  for k, v in pairs(opts.fzf_opts) do
+    if v == "" then opts.fzf_opts[k] = true end
+  end
+
   -- prioritize fzf-tmux split pane flags over the
   -- popup flag `-p` from fzf-lua defaults (#865)
   if type(opts.fzf_tmux_opts) == "table" then

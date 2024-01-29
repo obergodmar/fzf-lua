@@ -639,9 +639,9 @@ require'fzf-lua'.setup {
   fzf_opts = {
     -- options are sent as `<left>=<right>`
     -- set to `false` to remove a flag
-    -- set to '' for a non-value flag
+    -- set to `true` for a no-value flag
     -- for raw args use `fzf_args` instead
-    ["--ansi"]        = "",
+    ["--ansi"]        = true,
     ["--info"]        = "inline",
     ["--height"]      = "100%",
     ["--layout"]      = "reverse",
@@ -983,7 +983,7 @@ require'fzf-lua'.setup {
     },
     fzf_opts = {
       -- hide tabnr
-      ['--delimiter'] = "'[\\):]'",
+      ["--delimiter"] = "[\\):]",
       ["--with-nth"]  = '2..',
     },
   },
@@ -996,7 +996,7 @@ require'fzf-lua'.setup {
     fzf_opts = {
       -- do not include bufnr in fuzzy matching
       -- tiebreak by line no.
-      ['--delimiter'] = "'[\\]:]'",
+      ["--delimiter"] = "[\\]:]",
       ["--nth"]       = '2..',
       ["--tiebreak"]  = 'index',
       ["--tabstop"]   = "1",
@@ -1016,7 +1016,7 @@ require'fzf-lua'.setup {
     -- start          = "cursor"      -- start display from cursor?
     fzf_opts = {
       -- hide filename, tiebreak by line no.
-      ["--delimiter"] = "'[:]'",
+      ["--delimiter"] = "[:]",
       ["--with-nth"]  = '2..',
       ["--tiebreak"]  = 'index',
       ["--tabstop"]   = "1",

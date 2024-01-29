@@ -142,8 +142,8 @@ M.breakpoints = function(opts)
   end
 
   if opts.fzf_opts["--header"] == nil then
-    opts.fzf_opts["--header"] = libuv.shellescape((":: %s to delete a Breakpoint")
-      :format(utils.ansi_codes.yellow("<Ctrl-x>")))
+    opts.fzf_opts["--header"] = (":: %s to delete a Breakpoint")
+        :format(utils.ansi_codes.yellow("<Ctrl-x>"))
   end
 
   opts = core.set_fzf_field_index(opts, "{3}", opts._is_skim and "{}" or "{..-2}")

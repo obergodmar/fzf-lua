@@ -16,14 +16,6 @@ M.commands = function(opts)
   local buf_commands = vim.api.nvim_buf_get_commands(0, {})
   local commands = vim.tbl_extend("force", {}, global_commands, buf_commands)
 
-  local prev_act = shell.action(function(args)
-    local cmd = args[1]
-    if commands[cmd] then
-      cmd = vim.inspect(commands[cmd])
-    end
-    return cmd
-  end, nil, opts.debug)
-
   local entries = {}
 
   if opts.sort_lastused then
@@ -59,7 +51,13 @@ M.commands = function(opts)
     table.sort(entries, function(a, b) return a < b end)
   end
 
-  opts.fzf_opts["--preview"] = prev_act
+  opts.preview = shell.raw_action(function(args)
+    local cmd = args[1]
+    if commands[cmd] then
+      cmd = vim.inspect(commands[cmd])
+    end
+    return cmd
+  end, nil, opts.debug)
 
   core.fzf_exec(entries, opts)
 end
@@ -84,7 +82,7 @@ end
 local arg_header = function(sel_key, edit_key, text)
   sel_key = utils.ansi_codes.yellow(sel_key)
   edit_key = utils.ansi_codes.yellow(edit_key)
-  return libuv.shellescape((":: %s to %s, %s to edit"):format(sel_key, text, edit_key))
+  return (":: %s to %s, %s to edit"):format(sel_key, text, edit_key)
 end
 
 M.command_history = function(opts)
@@ -130,7 +128,7 @@ M.jumps = function(opts)
   table.insert(entries, 1,
     string.format("%6s %s  %s %s", opts.h1 or "jump", "line", "col", "file/text"))
 
-  opts.fzf_opts["--header-lines"] = "1"
+  opts.fzf_opts["--header-lines"] = 1
 
   core.fzf_exec(entries, opts)
 end
@@ -199,19 +197,6 @@ M.marks = function(opts)
     string.format("marks %s", opts.marks and opts.marks or ""))
   marks = vim.split(marks, "\n")
 
-  --[[ local prev_act = shell.action(function (args, fzf_lines, _)
-    local mark = args[1]:match("[^ ]+")
-    local bufnr, lnum, _, _ = unpack(vim.fn.getpos("'"..mark))
-    if vim.api.nvim_buf_is_loaded(bufnr) then
-      return vim.api.nvim_buf_get_lines(bufnr, lnum, fzf_lines+lnum, false)
-    else
-      local name = vim.fn.expand(args[1]:match(".* (.*)"))
-      if vim.fn.filereadable(name) ~= 0 then
-        return vim.fn.readfile(name, "", fzf_lines)
-      end
-      return "UNLOADED: " .. name
-    end
-  end) ]]
   local entries = {}
   local filter = opts.marks and vim.split(opts.marks, "")
   for i = #marks, 3, -1 do
@@ -233,8 +218,20 @@ M.marks = function(opts)
   table.insert(entries, 1,
     string.format("%-5s %s  %s %s", "mark", "line", "col", "file/text"))
 
-  -- opts.fzf_opts['--preview'] = prev_act
-  opts.fzf_opts["--header-lines"] = "1"
+  opts.fzf_opts["--header-lines"] = 1
+  --[[ opts.preview = shell.raw_action(function (args, fzf_lines, _)
+    local mark = args[1]:match("[^ ]+")
+    local bufnr, lnum, _, _ = unpack(vim.fn.getpos("'"..mark))
+    if vim.api.nvim_buf_is_loaded(bufnr) then
+      return vim.api.nvim_buf_get_lines(bufnr, lnum, fzf_lines+lnum, false)
+    else
+      local name = vim.fn.expand(args[1]:match(".* (.*)"))
+      if vim.fn.filereadable(name) ~= 0 then
+        return vim.fn.readfile(name, "", fzf_lines)
+      end
+      return "UNLOADED: " .. name
+    end
+  end) ]]
 
   core.fzf_exec(entries, opts)
 end
@@ -267,12 +264,6 @@ M.registers = function(opts)
         reg:gsub("\n", utils.ansi_codes.magenta("\\n"))
   end
 
-  local prev_act = shell.action(function(args)
-    local r = args[1]:match("%[(.*)%] ")
-    local _, contents = pcall(vim.fn.getreg, r)
-    return contents and register_escape_special(contents) or args[1]
-  end, nil, opts.debug)
-
   local entries = {}
   for _, r in ipairs(registers) do
     -- pcall as this could fail with:
@@ -286,7 +277,11 @@ M.registers = function(opts)
     end
   end
 
-  opts.fzf_opts["--preview"] = prev_act
+  opts.preview = shell.raw_action(function(args)
+    local r = args[1]:match("%[(.*)%] ")
+    local _, contents = pcall(vim.fn.getreg, r)
+    return contents and register_escape_special(contents) or args[1]
+  end, nil, opts.debug)
 
   core.fzf_exec(entries, opts)
 end

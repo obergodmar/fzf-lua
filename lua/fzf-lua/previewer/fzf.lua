@@ -190,8 +190,9 @@ function Previewer.cmd_async:parse_entry_and_verify(entrystr)
   local errcmd = nil
   -- verify the file exists on disk and is accessible
   if #filepath == 0 or not vim.loop.fs_stat(filepath) then
-    errcmd = ([[echo "%s: NO SUCH FILE OR ACCESS DENIED"]]):format(
-      filepath and #filepath > 0 and libuv.shellescape(filepath) or "<null>")
+    errcmd = "echo " .. libuv.shellescape(
+      string.format("'%': NO SUCH FILE OR ACCESS DENIED",
+        filepath and #filepath > 0 and filepath or "<null>"))
   end
   return filepath, entry, errcmd
 end

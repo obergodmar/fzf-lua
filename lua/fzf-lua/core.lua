@@ -241,7 +241,7 @@ M.fzf = function(contents, opts)
   -- this provides a solution for saving the query
   -- when the user pressed a valid bind but not when
   -- aborting with <C-c> or <Esc>, see next comment
-  opts.fzf_opts["--print-query"] = ""
+  opts.fzf_opts["--print-query"] = true
   -- setup dummy callbacks for the default fzf 'abort' keybinds
   -- this way the query also gets saved when we do not 'accept'
   opts.actions = opts.actions or {}
@@ -447,7 +447,7 @@ M.create_fzf_binds = function(binds)
   for key, action in pairs(dedup) do
     table.insert(tbl, string.format("%s:%s", key, action))
   end
-  return libuv.shellescape(table.concat(tbl, ","))
+  return table.concat(tbl, ",")
 end
 
 ---@param opts table
@@ -463,18 +463,11 @@ M.build_fzf_cli = function(opts)
   }) do
     opts[o] = opts[o] or config.globals[o]
   end
-  -- preview and query have special handling:
-  --   'opts.<name>' is prioritized over 'fzf_opts[--name]'
-  --   'opts.<name>' is automatically shellescaped
-  for _, o in ipairs({ "query", "preview" }) do
-    local flag = string.format("--%s", o)
-    if opts[o] ~= nil then
-      -- opt can be 'false' (disabled), don't shellescape in this case
-      if type(opts[o]) == "string" then
-        opts.fzf_opts[flag] = libuv.shellescape(opts[o])
-      else
-        opts.fzf_opts[flag] = opts[o]
-      end
+  -- below options can be specified directly in opts and will be
+  -- prioritized: opts.<name> is prioritized over fzf_opts["--name"]
+  for _, flag in ipairs({ "query", "prompt", "header", "preview" }) do
+    if opts[flag] ~= nil then
+      opts.fzf_opts["--" .. flag] = opts[flag]
     end
   end
   opts.fzf_opts["--bind"] = M.create_fzf_binds(opts.keymap.fzf)
@@ -487,23 +480,19 @@ M.build_fzf_cli = function(opts)
     opts.fzf_opts["--preview-window"] =
         opts.fzf_opts["--preview-window"] .. ":" .. opts.preview_offset
   end
-  -- shell escape the prompt
-  opts.fzf_opts["--prompt"] = (opts.prompt or opts.fzf_opts["--prompt"]) and
-      libuv.shellescape(opts.prompt or opts.fzf_opts["--prompt"])
   if opts._is_skim then
     -- skim (rust version of fzf) doesn't support the '--info=' flag
     local info = opts.fzf_opts["--info"]
     opts.fzf_opts["--info"] = nil
     if info == "inline" then
       -- inline for skim is defined as:
-      opts.fzf_opts["--inline-info"] = ""
+      opts.fzf_opts["--inline-info"] = true
     end
     -- skim doesn't accept border args
-    local border = opts.fzf_opts["--border"]
-    if border == "none" then
+    if opts.fzf_opts["--border"] == "none" then
       opts.fzf_opts["--border"] = nil
     else
-      opts.fzf_opts["--border"] = ""
+      opts.fzf_opts["--border"] = true
     end
   end
   -- build the cli args
@@ -518,17 +507,21 @@ M.build_fzf_cli = function(opts)
     end
   end
   for k, v in pairs(opts.fzf_opts) do
-    if type(v) == "string" or type(v) == "number" then
-      -- convert number type to string
-      v = tostring(v)
-      if utils.__IS_WINDOWS and v:match([[^'.*'$]]) then
+    -- flag can be set to `false` to negate a default
+    if v then
+      if utils.__IS_WINDOWS and type(v) == "string" and v:match([[^'.*'$]]) then
         -- replace single quote shellescape
         -- TODO: replace all so we never get here
         v = [["]] .. v:sub(2, #v - 1) .. [["]]
       end
       table.insert(cli_args, k)
-      if #v > 0 then
-        table.insert(cli_args, v)
+      if type(v) == "string" or type(v) == "number" then
+        v = tostring(v) -- convert number type to string
+        if libuv.is_escaped(v) then
+          utils.warn(string.format("`fzf_opts` are automatically shellescaped."
+            .. " Please remove surrounding quotes from %s=%s", k, v))
+        end
+        table.insert(cli_args, libuv.is_escaped(v) and v or libuv.shellescape(v))
       end
     end
   end
@@ -803,7 +796,7 @@ M.set_header = function(opts, hdr_tbl)
     end
   end
   if hdr_str and #hdr_str > 0 then
-    opts.fzf_opts["--header"] = libuv.shellescape(hdr_str)
+    opts.fzf_opts["--header"] = hdr_str
   end
   return opts
 end
@@ -970,7 +963,7 @@ M.setup_fzf_interactive_flags = function(command, fzf_field_expression, opts)
     opts.prompt = opts.__prompt or opts.prompt or opts.fzf_opts["--prompt"]
     if opts.prompt then
       opts.fzf_opts["--prompt"] = opts.prompt:match("[^%*]+")
-      opts.fzf_opts["--cmd-prompt"] = libuv.shellescape(opts.prompt)
+      opts.fzf_opts["--cmd-prompt"] = opts.prompt
       -- save original prompt and reset the current one since
       -- we're using the '--cmd-prompt' as the "main" prompt
       -- required for resume to have the asterisk prompt prefix
@@ -979,7 +972,7 @@ M.setup_fzf_interactive_flags = function(command, fzf_field_expression, opts)
     end
     -- since we surrounded the skim placeholder with quotes
     -- we need to escape them in the initial query
-    opts.fzf_opts["--cmd-query"] = libuv.shellescape(utils.sk_escape(opts.query))
+    opts.fzf_opts["--cmd-query"] = utils.sk_escape(opts.query)
     -- '--query' was set by 'resume()', skim has the option to switch back and
     -- forth between interactive command and fuzzy matching (using 'ctrl-q')
     -- setting both '--query' and '--cmd-query' will use <query> to fuzzy match
@@ -998,8 +991,8 @@ M.setup_fzf_interactive_flags = function(command, fzf_field_expression, opts)
       opts.__fzf_init_cmd = initial_command:gsub(fzf_field_expression,
         libuv.shellescape(opts.query))
     end
-    opts.fzf_opts["--disabled"] = ""
-    opts.fzf_opts["--query"] = libuv.shellescape(opts.query)
+    opts.fzf_opts["--disabled"] = true
+    opts.fzf_opts["--query"] = opts.query
     -- OR with true to avoid fzf's "Command failed:" message
     if opts.silent_fail ~= false then
       reload_command = reload_command .. " || " .. utils._if_win("break", "true")
