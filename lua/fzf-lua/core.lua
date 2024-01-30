@@ -517,11 +517,15 @@ M.build_fzf_cli = function(opts)
       table.insert(cli_args, k)
       if type(v) == "string" or type(v) == "number" then
         v = tostring(v) -- convert number type to string
-        if libuv.is_escaped(v) then
-          utils.warn(string.format("`fzf_opts` are automatically shellescaped."
-            .. " Please remove surrounding quotes from %s=%s", k, v))
+        if k == "--query" then
+          table.insert(cli_args, libuv.shellescape(v))
+        else
+          if libuv.is_escaped(v) then
+            utils.warn(string.format("`fzf_opts` are automatically shellescaped."
+              .. " Please remove surrounding quotes from %s=%s", k, v))
+          end
+          table.insert(cli_args, libuv.is_escaped(v) and v or libuv.shellescape(v))
         end
-        table.insert(cli_args, libuv.is_escaped(v) and v or libuv.shellescape(v))
       end
     end
   end
@@ -988,8 +992,9 @@ M.setup_fzf_interactive_flags = function(command, fzf_field_expression, opts)
     -- use `true` as $FZF_DEFAULT_COMMAND instead (#510)
     opts.__fzf_init_cmd = utils._if_win("break", "true")
     if opts.exec_empty_query or (opts.query and #opts.query > 0) then
-      opts.__fzf_init_cmd = initial_command:gsub(fzf_field_expression,
-        libuv.shellescape(opts.query))
+      -- gsub doesn't like single % on rhs
+      local escaped_q = libuv.shellescape(libuv.escape_q(opts.query)):gsub("%%", "%%%%")
+      opts.__fzf_init_cmd = initial_command:gsub(fzf_field_expression, escaped_q)
     end
     opts.fzf_opts["--disabled"] = true
     opts.fzf_opts["--query"] = opts.query

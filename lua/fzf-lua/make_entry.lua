@@ -337,12 +337,13 @@ M.preprocess = function(opts)
     -- If no index was supplied use the last argument
     local idx = tonumber(i) and tonumber(i) + 6 or #vim.v.argv
     local arg = vim.v.argv[idx]
-    if utils.__IS_WINDOWS then
-      -- fzf's {q} will send escaped blackslahes, unescape
-      arg = arg:gsub([[\\]], [[\]])
-    end
     if debug == "v" or debug == "verbose" then
       io.stdout:write(("[DEBUGV]: raw_argv(%d) = %s\n"):format(idx, arg))
+    end
+    if utils.__IS_WINDOWS then
+      arg = libuv.unescape_q(arg)
+    end
+    if debug == "v" or debug == "verbose" then
       io.stdout:write(("[DEBUGV]: esc_argv(%d) = %s\n"):format(idx, libuv.shellescape(arg)))
     end
     return arg

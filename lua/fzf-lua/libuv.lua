@@ -661,6 +661,33 @@ M.shellescape = function(s, win_style)
   end
 end
 
+-- Windows fzf oddities, fzf's {q} will send escaped blackslahes,
+-- but only when the backslash prefixes another character which
+-- isn't a backslash
+M.unescape_q = function(s)
+  if not is_windows then return s end
+  local ret = s:gsub("\\+[^\\]", function(x)
+    local bslash_num = #x:match([[\+]])
+    return string.rep([[\]],
+      bslash_num == 1 and bslash_num or bslash_num / 2) .. x:sub(-1)
+  end)
+  return ret
+end
+
+-- with live_grep, we use a modified "reload" command as our
+-- FZF_DEFAULT_COMMAND and due to the above oddity with fzf
+-- doing weird extra escaping with {q},  we use this to simulate
+-- {q} being sent via the reload action as the initial command
+-- TODO: better solution for these stupid hacks (upstream issues?)
+M.escape_q = function(s)
+  if not is_windows then return s end
+  local ret = s:gsub("\\+[^\\]", function(x)
+    local bslash_num = #x:match([[\+]])
+    return string.rep([[\]], bslash_num * 2) .. x:sub(-1)
+  end)
+  return ret
+end
+
 ---@param opts string
 ---@param fn_transform string?
 ---@param fn_preprocess string?
