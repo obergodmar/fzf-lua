@@ -331,11 +331,11 @@ local function stripBeforeLastOccurrenceOf(str, sep)
 end
 
 function M.entry_to_ctag(entry, noesc)
-  local ctag = entry:match("%:.-/^?\t?(.*)/")
+  local ctag = entry:match("%:.-[/\\]^?\t?(.*)[/\\]")
   -- if tag name contains a slash we could
   -- have the wrong match, most tags start
   -- with ^ so try to match based on that
-  ctag = ctag and ctag:match("/^(.*)") or ctag
+  ctag = ctag and ctag:match("[/\\]^(.*)") or ctag
   if ctag and not noesc then
     -- required escapes for vim.fn.search()
     -- \ ] ~ *

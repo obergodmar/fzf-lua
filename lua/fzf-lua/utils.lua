@@ -110,8 +110,17 @@ end
 ---@return string[]
 M.strsplit = function(inputstr, sep)
   local t = {}
-  for str in string.gmatch(inputstr, "([^" .. sep .. "]+)") do
-    table.insert(t, str)
+  if #sep == 1 then
+    for str in string.gmatch(inputstr, "([^" .. sep .. "]+)") do
+      table.insert(t, str)
+    end
+  else
+    local s, m, r = inputstr, nil, nil
+    repeat
+      m, r = s:match("^(.-)" .. sep .. "(.*)$")
+      s = r and r or s
+      table.insert(t, m or s)
+    until not m
   end
   return t
 end
