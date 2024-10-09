@@ -794,6 +794,7 @@ M.mt_cmd_wrapper = function(opts)
       "strip_cwd_prefix",
       "exec_empty_query",
       "file_ignore_patterns",
+      "use_absolute_paths",
       "rg_glob",
       "_base64",
       utils.__IS_WINDOWS and "__FZF_VERSION" or nil,
