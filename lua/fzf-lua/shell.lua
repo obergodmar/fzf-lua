@@ -217,6 +217,7 @@ M.stringify_mt = function(contents, opts)
       "render_crlf",
       "exec_empty_query",
       "file_ignore_patterns",
+      "use_absolute_paths",
       "rg_glob",
       "fn_transform",
       "fn_preprocess",

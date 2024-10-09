@@ -833,6 +833,7 @@ previewers = {
     hidden             = true,          -- enable hidden files by default
     follow             = false,         -- do not follow symlinks by default
     no_ignore          = false,         -- respect ".gitignore"  by default
+    use_absolute_paths = false,         -- do not replace $HOME with ~
     actions = {
       -- inherits from 'actions.files', here we can override
       -- or set bind to 'false' to disable a default action
